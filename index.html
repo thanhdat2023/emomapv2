@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kitty AI - Phỏng Vấn Cảm Xúc</title>
+    <title>Kitty AI - Interactive Survey</title>
     <style>
-        /* --- GIAO DIỆN CHUẨN (GIỮ NGUYÊN) --- */
+        /* --- GIAO DIỆN CHUẨN CŨ --- */
         :root { --primary: #ff9f43; --bg-color: #fff0e6; --chat-ai: #ffffff; }
         body.theme-sad { --primary: #74b9ff; --bg-color: #f1f7ff; }
         body.theme-stress { --primary: #ff7675; --bg-color: #fff0f0; }
@@ -15,10 +15,9 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; transition: all 0.3s ease; }
         body { background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
 
-        /* APP CONTAINER */
         .app-container { width: 100%; max-width: 450px; height: 95vh; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); display: flex; flex-direction: column; position: relative; overflow: hidden; border: 2px solid var(--primary); }
 
-        /* SCREEN */
+        /* SCREENS */
         .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10; display: none; flex-direction: column; }
         .screen.active { display: flex; animation: fadeIn 0.5s; }
 
@@ -38,32 +37,45 @@
         .msg.ai { align-self: flex-start; background: var(--chat-ai); color: #333; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .msg.user { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 4px; }
 
-        /* INPUT AREAS (TEXT & SURVEY) */
-        .input-container { min-height: 70px; background: white; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: center; padding: 10px; position: relative; z-index: 30; }
+        /* THANH NHẬP LIỆU ĐA NĂNG */
+        .input-container { min-height: 80px; background: white; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: center; padding: 5px 10px; position: relative; z-index: 30; }
         
-        /* Thanh nhập text (Chat thường) */
-        #text-input-mode { width: 100%; display: none; gap: 10px; padding: 0 10px; }
+        /* Mode 1: Nhập Text */
+        #text-input-mode { width: 100%; display: none; gap: 10px; align-items: center; }
         #text-input-mode.active { display: flex; }
-        input { flex: 1; padding: 10px; border: 2px solid #eee; border-radius: 20px; outline: none; }
-        .send-btn { padding: 8px 15px; background: var(--primary); border: none; border-radius: 50%; color: white; cursor: pointer; font-size: 1rem; }
+        input { flex: 1; padding: 12px; border: 2px solid #eee; border-radius: 20px; outline: none; }
+        .send-btn { padding: 10px 15px; background: var(--primary); border: none; border-radius: 50%; color: white; cursor: pointer; font-size: 1rem; }
 
-        /* Thanh chọn Emoji (Chat khảo sát) */
-        #survey-input-mode { width: 100%; display: none; justify-content: space-around; padding: 5px; }
+        /* Mode 2: Nhập Emoji (CÓ CHỮ) */
+        #survey-input-mode { width: 100%; display: none; justify-content: space-between; padding: 0 5px; }
         #survey-input-mode.active { display: flex; }
-        .emoji-btn { font-size: 2rem; cursor: pointer; transition: 0.2s; filter: grayscale(100%); opacity: 0.6; background: none; border: none; }
-        .emoji-btn:hover { transform: scale(1.2); filter: grayscale(0%); opacity: 1; }
+        
+        .emoji-btn { 
+            background: none; border: none; cursor: pointer; 
+            display: flex; flex-direction: column; align-items: center; 
+            transition: 0.2s; opacity: 0.5; flex: 1;
+        }
+        .emoji-btn:hover { opacity: 1; transform: translateY(-3px); }
         .emoji-btn:active { transform: scale(0.9); }
+        
+        .e-icon { font-size: 1.8rem; filter: grayscale(100%); transition: 0.2s; }
+        .e-text { font-size: 0.6rem; font-weight: bold; color: #888; margin-top: 3px; text-align: center; line-height: 1.1; }
+        
+        /* Khi hover vào nút thì icon có màu */
+        .emoji-btn:hover .e-icon { filter: grayscale(0%); transform: scale(1.2); }
+        .emoji-btn:hover .e-text { color: var(--primary); }
 
-        /* TYPING */
+        /* Typing */
         .typing { display: none; gap: 5px; padding: 10px; margin-left: 10px; background: white; border-radius: 15px; width: fit-content; margin-bottom: 10px; }
         .dot { width: 6px; height: 6px; background: #ccc; border-radius: 50%; animation: blink 1.4s infinite both; }
         .dot:nth-child(2) { animation-delay: 0.2s; } .dot:nth-child(3) { animation-delay: 0.4s; }
 
-        /* TOOLS & MODALS (GIỮ NGUYÊN) */
+        /* TOOLS & MODALS */
         .tools-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #fafafa; border-top: 1px solid #eee; padding: 8px 0; }
         .tool-btn { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; font-size: 0.75rem; }
         .tool-btn:hover { color: var(--primary); }
-        .float-reset { position: absolute; bottom: 130px; right: 15px; width: 45px; height: 45px; background: white; border: 2px solid var(--primary); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; z-index: 50; }
+        
+        .float-reset { position: absolute; bottom: 140px; right: 15px; width: 45px; height: 45px; background: white; border: 2px solid var(--primary); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; z-index: 50; }
         
         .modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; display: none; flex-direction: column; padding: 20px; animation: slideUp 0.3s; }
         .modal.active { display: flex; }
@@ -71,10 +83,10 @@
         .close-btn { cursor: pointer; background: none; border: none; font-size: 1.5rem; }
         .therapy-item { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
         .therapy-btn-mini { background: var(--primary); color: white; border: none; padding: 5px 15px; border-radius: 15px; cursor: pointer; font-size: 0.8rem; }
-        #resetOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #a8e6cf, #dcedc1); z-index: 300; display: none; flex-direction: column; justify-content: center; align-items: center; color: #2d3436; }
-        .reset-circle { width: 150px; height: 150px; border: 5px solid white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; font-weight: bold; color: white; animation: breathe 8s infinite; }
         .map-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
         .dot-map { width: 35px; height: 35px; border-radius: 50%; background: #eee; display: flex; justify-content: center; align-items: center; font-size: 0.6rem; color: white; font-weight: bold; }
+        #resetOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #a8e6cf, #dcedc1); z-index: 300; display: none; flex-direction: column; justify-content: center; align-items: center; color: #2d3436; }
+        .reset-circle { width: 150px; height: 150px; border: 5px solid white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; font-weight: bold; color: white; animation: breathe 8s infinite; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -90,8 +102,8 @@
         
         <div id="screen-intro" class="screen active">
             <div class="intro-card">
-                <h1 style="color:var(--primary)">Kitty AI 🎧</h1>
-                <p>Trợ lý Cảm xúc Học đường</p>
+                <h1 style="color:var(--primary)">Kitty AI 🛡️</h1>
+                <p>Đồng hành & Bảo vệ Học đường</p>
                 <input type="text" id="inputName" class="intro-input" placeholder="Họ tên của bạn..." required>
                 <input type="text" id="inputClass" class="intro-input" placeholder="Lớp (VD: 12A1)...">
                 <select id="inputGender" class="intro-input">
@@ -128,18 +140,30 @@
             <div class="float-reset" onclick="activateReset()" title="Reset Tâm Trí"><i class="fas fa-redo"></i></div>
 
             <div class="input-container">
+                
                 <div id="text-input-mode">
                     <input type="text" id="userInput" placeholder="Nhắn tin..." autocomplete="off">
                     <button class="send-btn" onclick="handleChat()"><i class="fas fa-paper-plane"></i></button>
                 </div>
                 
                 <div id="survey-input-mode">
-                    <button class="emoji-btn" onclick="handleSurveyAnswer(1)">😠</button>
-                    <button class="emoji-btn" onclick="handleSurveyAnswer(2)">😞</button>
-                    <button class="emoji-btn" onclick="handleSurveyAnswer(3)">😐</button>
-                    <button class="emoji-btn" onclick="handleSurveyAnswer(4)">🙂</button>
-                    <button class="emoji-btn" onclick="handleSurveyAnswer(5)">🤩</button>
+                    <button class="emoji-btn" onclick="handleSurveyAnswer(1)">
+                        <div class="e-icon">😠</div><div class="e-text">Rất sai</div>
+                    </button>
+                    <button class="emoji-btn" onclick="handleSurveyAnswer(2)">
+                        <div class="e-icon">😞</div><div class="e-text">Sai</div>
+                    </button>
+                    <button class="emoji-btn" onclick="handleSurveyAnswer(3)">
+                        <div class="e-icon">😐</div><div class="e-text">Bình thường</div>
+                    </button>
+                    <button class="emoji-btn" onclick="handleSurveyAnswer(4)">
+                        <div class="e-icon">🙂</div><div class="e-text">Đúng</div>
+                    </button>
+                    <button class="emoji-btn" onclick="handleSurveyAnswer(5)">
+                        <div class="e-icon">🤩</div><div class="e-text">Rất đúng</div>
+                    </button>
                 </div>
+
             </div>
 
             <div class="tools-bar">
@@ -180,7 +204,6 @@
         const LINK_VUI = "https://open.spotify.com/embed/playlist/2s9R059mUf28NY9B2yT2QZ";
         const LINK_LOFI = "https://open.spotify.com/embed/playlist/0vvXsWCC9xrXsKd4FyS8kM";
 
-        // BỘ CÂU HỎI KHẢO SÁT
         const questions = [
             "Mình cảm thấy an toàn khi ở trường học.",
             "Mình từng bị ai đó đánh, xô đẩy hoặc làm đau.",
@@ -215,7 +238,7 @@
             
             document.getElementById('screen-intro').classList.remove('active');
             document.getElementById('screen-chat').classList.add('active');
-            document.getElementById('classTitle').innerText = className;
+            document.getElementById('classTitle').innerText = className || "";
             renderClassMap();
 
             // Bắt đầu hỏi câu 1
@@ -247,11 +270,11 @@
             const emojis = ["😠", "😞", "😐", "🙂", "🤩"];
             addMessage(emojis[val-1], 'user');
 
-            // Phản hồi nhanh (Fake AI response)
+            // Phản hồi nhanh
             const replies = ["Đã ghi nhận.", "Oki.", "Mình hiểu rồi.", "Tiếp nha.", "Cảm ơn cậu."];
             const randomReply = replies[Math.floor(Math.random() * replies.length)];
             
-            // Ẩn input để tránh spam
+            // Ẩn input để tránh bấm liên tục
             document.getElementById('survey-input-mode').classList.remove('active');
 
             setTimeout(() => {
