@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kitty AI - Final Perfect Version</title>
+    <title>Kitty AI - Phỏng Vấn Cảm Xúc</title>
     <style>
-        /* --- 1. CẤU HÌNH GIAO DIỆN --- */
+        /* --- GIAO DIỆN CHUẨN (GIỮ NGUYÊN) --- */
         :root { --primary: #ff9f43; --bg-color: #fff0e6; --chat-ai: #ffffff; }
         body.theme-sad { --primary: #74b9ff; --bg-color: #f1f7ff; }
         body.theme-stress { --primary: #ff7675; --bg-color: #fff0f0; }
@@ -15,116 +15,72 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; transition: all 0.3s ease; }
         body { background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
 
-        /* KHUNG APP TỔNG */
-        .app-container { 
-            width: 100%; max-width: 450px; height: 95vh; 
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); 
-            border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); 
-            display: flex; flex-direction: column; position: relative; 
-            overflow: hidden; border: 2px solid var(--primary); 
-        }
+        /* APP CONTAINER */
+        .app-container { width: 100%; max-width: 450px; height: 95vh; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); display: flex; flex-direction: column; position: relative; overflow: hidden; border: 2px solid var(--primary); }
 
-        /* --- QUẢN LÝ MÀN HÌNH (LOGIC CHUYỂN CẢNH) --- */
-        .screen { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: white; z-index: 10; display: none; flex-direction: column; 
-            overflow-y: auto; /* Cho phép cuộn nếu nội dung dài */
-        }
+        /* SCREEN */
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 10; display: none; flex-direction: column; }
         .screen.active { display: flex; animation: fadeIn 0.5s; }
 
-        /* 1. MÀN HÌNH INTRO (HỎI TÊN) */
+        /* INTRO */
         #screen-intro { justify-content: center; align-items: center; padding: 30px; text-align: center; }
         .intro-card { background: white; padding: 30px; border-radius: 20px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid var(--primary); }
         .intro-input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 10px; outline: none; font-size: 1rem; }
         .btn-primary { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1rem; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
-        /* 2. MÀN HÌNH KHẢO SÁT (SURVEY) */
-        #screen-survey { padding: 20px; background: #fafafa; }
-        .survey-header { text-align: center; margin-bottom: 20px; }
-        .survey-title { color: var(--primary); font-size: 1.4rem; font-weight: bold; }
-        
-        .question-block { background: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
-        .q-text { font-weight: 600; font-size: 0.95rem; margin-bottom: 10px; display: block; color: #333; }
-        .emoji-scale { display: flex; justify-content: space-between; padding: 0 10px; }
-        .emoji-opt { font-size: 1.6rem; cursor: pointer; opacity: 0.4; transition: 0.2s; filter: grayscale(100%); }
-        .emoji-opt:hover { opacity: 0.8; transform: scale(1.2); filter: grayscale(0%); }
-        .emoji-opt.selected { opacity: 1; transform: scale(1.3); filter: grayscale(0%); }
-
-        /* 3. MÀN HÌNH CHAT CHÍNH */
-        #screen-chat { padding: 0; overflow: hidden; } /* Không cuộn toàn màn hình */
-        
+        /* CHAT UI */
         .header { padding: 15px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: space-between; z-index: 20; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .avatar-wrapper { width: 40px; height: 40px; }
         .kitty-svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); }
         
-        /* Khu vực chat */
         .chat-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: rgba(255,255,255,0.6); scroll-behavior: smooth; }
         .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.5; word-wrap: break-word; animation: fadeUp 0.3s ease; }
         .msg.ai { align-self: flex-start; background: var(--chat-ai); color: #333; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .msg.user { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 4px; }
 
-        /* Typing */
-        .typing { display: none; gap: 5px; padding: 10px; margin-left: 10px; background: white; border-radius: 15px; width: fit-content; }
-        .dot { width: 6px; height: 6px; background: #ccc; border-radius: 50%; animation: blink 1.4s infinite both; }
-        .dot:nth-child(2) { animation-delay: 0.2s; } .dot:nth-child(3) { animation-delay: 0.4s; }
-
-        /* Input Area */
-        .input-area { padding: 10px 15px; background: white; border-top: 1px solid #eee; display: flex; gap: 10px; align-items: center; }
+        /* INPUT AREAS (TEXT & SURVEY) */
+        .input-container { min-height: 70px; background: white; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: center; padding: 10px; position: relative; z-index: 30; }
+        
+        /* Thanh nhập text (Chat thường) */
+        #text-input-mode { width: 100%; display: none; gap: 10px; padding: 0 10px; }
+        #text-input-mode.active { display: flex; }
         input { flex: 1; padding: 10px; border: 2px solid #eee; border-radius: 20px; outline: none; }
         .send-btn { padding: 8px 15px; background: var(--primary); border: none; border-radius: 50%; color: white; cursor: pointer; font-size: 1rem; }
 
-        /* --- TOOLS BAR (SỬA LỖI DÍU DÍT) --- */
-        .tools-bar { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr 1fr; /* Chia đều 3 cột */
-            background: #fafafa; 
-            border-top: 1px solid #eee; 
-            padding: 8px 0;
-        }
-        .tool-btn { 
-            background: none; border: none; cursor: pointer; 
-            display: flex; flex-direction: column; align-items: center; gap: 4px; 
-            color: #888; font-size: 0.75rem; 
-        }
-        .tool-btn i { font-size: 1.2rem; margin-bottom: 2px; }
+        /* Thanh chọn Emoji (Chat khảo sát) */
+        #survey-input-mode { width: 100%; display: none; justify-content: space-around; padding: 5px; }
+        #survey-input-mode.active { display: flex; }
+        .emoji-btn { font-size: 2rem; cursor: pointer; transition: 0.2s; filter: grayscale(100%); opacity: 0.6; background: none; border: none; }
+        .emoji-btn:hover { transform: scale(1.2); filter: grayscale(0%); opacity: 1; }
+        .emoji-btn:active { transform: scale(0.9); }
+
+        /* TYPING */
+        .typing { display: none; gap: 5px; padding: 10px; margin-left: 10px; background: white; border-radius: 15px; width: fit-content; margin-bottom: 10px; }
+        .dot { width: 6px; height: 6px; background: #ccc; border-radius: 50%; animation: blink 1.4s infinite both; }
+        .dot:nth-child(2) { animation-delay: 0.2s; } .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* TOOLS & MODALS (GIỮ NGUYÊN) */
+        .tools-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #fafafa; border-top: 1px solid #eee; padding: 8px 0; }
+        .tool-btn { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; color: #888; font-size: 0.75rem; }
         .tool-btn:hover { color: var(--primary); }
-
-        /* RESET BUTTON (Nổi) */
-        .float-reset { 
-            position: absolute; bottom: 130px; right: 15px; 
-            width: 45px; height: 45px; 
-            background: white; border: 2px solid var(--primary); border-radius: 50%; 
-            display: flex; justify-content: center; align-items: center; 
-            color: var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-            cursor: pointer; z-index: 50; transition: 0.3s; 
-        }
-        .float-reset:hover { transform: rotate(180deg); }
-
-        /* MODALS */
+        .float-reset { position: absolute; bottom: 130px; right: 15px; width: 45px; height: 45px; background: white; border: 2px solid var(--primary); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; z-index: 50; }
+        
         .modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 100; display: none; flex-direction: column; padding: 20px; animation: slideUp 0.3s; }
         .modal.active { display: flex; }
         .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; color: var(--primary); font-size: 1.2rem; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .close-btn { cursor: pointer; background: none; border: none; font-size: 1.5rem; }
-
-        /* CÁC THÀNH PHẦN CON */
         .therapy-item { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
         .therapy-btn-mini { background: var(--primary); color: white; border: none; padding: 5px 15px; border-radius: 15px; cursor: pointer; font-size: 0.8rem; }
-        
+        #resetOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #a8e6cf, #dcedc1); z-index: 300; display: none; flex-direction: column; justify-content: center; align-items: center; color: #2d3436; }
+        .reset-circle { width: 150px; height: 150px; border: 5px solid white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; font-weight: bold; color: white; animation: breathe 8s infinite; }
         .map-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
         .dot-map { width: 35px; height: 35px; border-radius: 50%; background: #eee; display: flex; justify-content: center; align-items: center; font-size: 0.6rem; color: white; font-weight: bold; }
 
-        #resetOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #a8e6cf, #dcedc1); z-index: 300; display: none; flex-direction: column; justify-content: center; align-items: center; color: #2d3436; }
-        .reset-circle { width: 150px; height: 150px; border: 5px solid white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; font-weight: bold; color: white; animation: breathe 8s infinite; }
-
-        /* ANIMATIONS */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes breathe { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         @keyframes blink { 0% { opacity: 0.2; } 20% { opacity: 1; } 100% { opacity: 0.2; } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -134,8 +90,8 @@
         
         <div id="screen-intro" class="screen active">
             <div class="intro-card">
-                <h1 style="color:var(--primary)">Kitty AI 🛡️</h1>
-                <p>Đồng hành & Bảo vệ Học đường</p>
+                <h1 style="color:var(--primary)">Kitty AI 🎧</h1>
+                <p>Trợ lý Cảm xúc Học đường</p>
                 <input type="text" id="inputName" class="intro-input" placeholder="Họ tên của bạn..." required>
                 <input type="text" id="inputClass" class="intro-input" placeholder="Lớp (VD: 12A1)...">
                 <select id="inputGender" class="intro-input">
@@ -143,17 +99,8 @@
                     <option value="Nam">Nam</option>
                     <option value="Nữ">Nữ</option>
                 </select>
-                <button class="btn-primary" onclick="goToSurvey()">Tiếp tục</button>
+                <button class="btn-primary" onclick="startChatSurvey()">Bắt đầu Chat</button>
             </div>
-        </div>
-
-        <div id="screen-survey" class="screen">
-            <div class="survey-header">
-                <div class="survey-title">📝 Góc Chia Sẻ</div>
-                <small style="color:#666">Chọn cảm xúc đúng nhất với bạn</small>
-            </div>
-            <div id="surveyQuestions"></div>
-            <button class="btn-primary" onclick="submitSurvey()" style="margin-bottom:50px;">Hoàn thành & Chat</button>
         </div>
 
         <div id="screen-chat" class="screen">
@@ -169,7 +116,7 @@
                     </div>
                     <div>
                         <div style="font-weight: bold;">Kitty AI</div>
-                        <div style="font-size: 0.7rem; opacity: 0.9;" id="statusText">Đang kết nối...</div>
+                        <div style="font-size: 0.7rem; opacity: 0.9;" id="statusText">Trợ lý của bạn</div>
                     </div>
                 </div>
                 <div class="mhi-score"><span id="mhiScore">75</span>/100</div>
@@ -180,9 +127,19 @@
             
             <div class="float-reset" onclick="activateReset()" title="Reset Tâm Trí"><i class="fas fa-redo"></i></div>
 
-            <div class="input-area">
-                <input type="text" id="userInput" placeholder="Nhắn tin với AI..." autocomplete="off">
-                <button class="send-btn" onclick="handleChat()"><i class="fas fa-paper-plane"></i></button>
+            <div class="input-container">
+                <div id="text-input-mode">
+                    <input type="text" id="userInput" placeholder="Nhắn tin..." autocomplete="off">
+                    <button class="send-btn" onclick="handleChat()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                
+                <div id="survey-input-mode">
+                    <button class="emoji-btn" onclick="handleSurveyAnswer(1)">😠</button>
+                    <button class="emoji-btn" onclick="handleSurveyAnswer(2)">😞</button>
+                    <button class="emoji-btn" onclick="handleSurveyAnswer(3)">😐</button>
+                    <button class="emoji-btn" onclick="handleSurveyAnswer(4)">🙂</button>
+                    <button class="emoji-btn" onclick="handleSurveyAnswer(5)">🤩</button>
+                </div>
             </div>
 
             <div class="tools-bar">
@@ -197,7 +154,7 @@
             <div id="timelineContent"></div>
         </div>
         <div class="modal" id="mapModal">
-            <div class="modal-header"><span>🗺️ Lớp <span id="classTitle"></span></span><button class="close-btn" onclick="toggleModal('mapModal')">×</button></div>
+            <div class="modal-header"><span>🗺️ Bản Đồ Lớp <span id="classTitle"></span></span><button class="close-btn" onclick="toggleModal('mapModal')">×</button></div>
             <div class="map-grid" id="classMapGrid"></div>
         </div>
         <div class="modal" id="therapyModal">
@@ -216,19 +173,14 @@
 
     <script>
         // ============================================================
-        // ⚠️ DÁN KEY GROQ (gsk_...) VÀO ĐÂY
+        // ⚠️ DÁN KEY GROQ VÀO ĐÂY ⚠️
         const API_KEY = "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"; 
         // ============================================================
 
-        // ============================================================
-        // THAY THẾ ĐOẠN LINK NHẠC CŨ BẰNG ĐOẠN NÀY:
-        // Link nhạc Vui (Indie Việt / Chill)
-        const LINK_VUI = "https://open.spotify.com/embed/playlist/4lPLZ0npUWzSpeg0BPOVdp?si=UjYu0QMTTiudxfcW1kPKxg";
-        
-        // Link nhạc Lofi (Playlist "lofi beats")
-        const LINK_BUON = "https://open.spotify.com/embed/playlist/0jSMk9A4W6wnFUkfrBuRaG?si=-W7y9Rc6Sxq_k6MhiTugRw";
-        // ============================================================ 
-        // ============================================================
+        const LINK_VUI = "https://open.spotify.com/embed/playlist/2s9R059mUf28NY9B2yT2QZ";
+        const LINK_LOFI = "https://open.spotify.com/embed/playlist/0vvXsWCC9xrXsKd4FyS8kM";
+
+        // BỘ CÂU HỎI KHẢO SÁT
         const questions = [
             "Mình cảm thấy an toàn khi ở trường học.",
             "Mình từng bị ai đó đánh, xô đẩy hoặc làm đau.",
@@ -241,71 +193,107 @@
             "Mình cảm thấy áp lực phải làm theo ý nhóm bạn.",
             "Mình tin rằng nhà trường sẽ bảo vệ mình."
         ];
-        const emojis = [ {i:"😠",v:1}, {i:"😞",v:2}, {i:"😐",v:3}, {i:"🙂",v:4}, {i:"🤩",v:5} ];
 
         let messages = []; 
         let mhiScore = 75;
         let userProfile = {};
-        let surveyResults = new Array(questions.length).fill(0);
+        let surveyResults = [];
+        let currentQIndex = 0;
         let history = JSON.parse(localStorage.getItem('emotionHistory')) || [];
         let audioCtx, whiteNoiseSource;
 
-        function switchScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
-
-        // 1. INTRO -> SURVEY
-        window.goToSurvey = function() {
+        // 1. BẮT ĐẦU: CHUYỂN TỪ INTRO SANG CHAT KHẢO SÁT
+        function startChatSurvey() {
             const name = document.getElementById('inputName').value.trim();
             const gender = document.getElementById('inputGender').value;
             const className = document.getElementById('inputClass').value.trim();
 
-            if(!name || !gender) return alert("Nhập đủ thông tin nha!");
-            if(!API_KEY || API_KEY.includes("DÁN_MÃ_KEY")) return alert("Lỗi: Chưa dán API Key Groq!");
+            if(!name || !gender) return alert("Vui lòng nhập đủ thông tin!");
+            if(!API_KEY || API_KEY.includes("DÁN_KEY")) return alert("Lỗi: Chưa dán API Key Groq!");
 
             userProfile = { name, gender, class: className };
-            switchScreen('screen-survey');
-
-            document.getElementById('surveyQuestions').innerHTML = questions.map((q, idx) => `
-                <div class="question-block">
-                    <label class="q-text">${idx+1}. ${q}</label>
-                    <div class="emoji-scale" id="q${idx}">
-                        ${emojis.map(e => `<div class="emoji-opt" onclick="selectEmoji(${idx}, ${e.v}, this)">${e.i}</div>`).join('')}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        window.selectEmoji = function(qIdx, val, el) {
-            const parent = document.getElementById(`q${qIdx}`);
-            Array.from(parent.children).forEach(c => c.classList.remove('selected'));
-            el.classList.add('selected');
-            surveyResults[qIdx] = val;
-        }
-
-        // 2. SURVEY -> CHAT
-        window.submitSurvey = async function() {
-            if(surveyResults.includes(0)) return alert("Trả lời hết 10 câu nhé!");
-
-            switchScreen('screen-chat');
-            document.getElementById('classTitle').innerText = userProfile.class || "";
-            renderClassMap();
             
+            document.getElementById('screen-intro').classList.remove('active');
+            document.getElementById('screen-chat').classList.add('active');
+            document.getElementById('classTitle').innerText = className;
+            renderClassMap();
+
+            // Bắt đầu hỏi câu 1
+            addMessage(`Chào <b>${name}</b>! 👋 Mình là Kitty AI. Để hiểu và bảo vệ cậu tốt hơn, mình xin phép hỏi cậu 10 câu ngắn nhé.`, 'ai');
+            
+            setTimeout(() => {
+                askNextQuestion();
+            }, 1000);
+        }
+
+        // 2. LOGIC HỎI TỪNG CÂU
+        function askNextQuestion() {
+            if (currentQIndex < questions.length) {
+                // Hiện câu hỏi
+                addMessage(`<b>Câu ${currentQIndex + 1}:</b> ${questions[currentQIndex]}`, 'ai');
+                // Bật chế độ nhập Emoji
+                toggleInputMode('survey');
+            } else {
+                // Hết câu hỏi -> Kết thúc khảo sát
+                finishSurvey();
+            }
+        }
+
+        // Xử lý khi user chọn Emoji
+        function handleSurveyAnswer(val) {
+            surveyResults.push(val);
+            
+            // Hiển thị lựa chọn của user
+            const emojis = ["😠", "😞", "😐", "🙂", "🤩"];
+            addMessage(emojis[val-1], 'user');
+
+            // Phản hồi nhanh (Fake AI response)
+            const replies = ["Đã ghi nhận.", "Oki.", "Mình hiểu rồi.", "Tiếp nha.", "Cảm ơn cậu."];
+            const randomReply = replies[Math.floor(Math.random() * replies.length)];
+            
+            // Ẩn input để tránh spam
+            document.getElementById('survey-input-mode').classList.remove('active');
+
+            setTimeout(() => {
+                addMessage(randomReply, 'ai');
+                currentQIndex++;
+                setTimeout(askNextQuestion, 800);
+            }, 500);
+        }
+
+        function toggleInputMode(mode) {
+            document.getElementById('text-input-mode').classList.remove('active');
+            document.getElementById('survey-input-mode').classList.remove('active');
+            
+            if(mode === 'survey') document.getElementById('survey-input-mode').classList.add('active');
+            else document.getElementById('text-input-mode').classList.add('active');
+        }
+
+        // 3. KẾT THÚC KHẢO SÁT -> GỌI AI PHÂN TÍCH
+        async function finishSurvey() {
+            addMessage("Cảm ơn cậu đã chia sẻ! Đợi mình xíu để phân tích kết quả nhé... 🧠", 'ai');
+            document.getElementById('typingIndicator').style.display = 'flex';
+
+            // Chuyển sang chế độ chat thường
+            toggleInputMode('text');
+
+            // Tạo Prompt gửi Groq
             let surveyText = questions.map((q, i) => `- ${q}: ${surveyResults[i]}/5`).join('\n');
             const systemPrompt = `Bạn là Kitty AI, chuyên gia tâm lý học đường.
             User: ${userProfile.name}, ${userProfile.gender}, lớp ${userProfile.class}.
-            Kết quả khảo sát bạo lực học đường:
+            Kết quả khảo sát bạo lực học đường (1-5):
             ${surveyText}
+            
             NHIỆM VỤ:
-            1. Ngay tin đầu: Phân tích kết quả. Nếu điểm tiêu cực cao (bị bắt nạt) -> AN ỦI NGAY và hỏi: "Cậu có muốn nghe nhạc Lofi không?".
-            2. Nếu user đồng ý nghe nhạc: CHỈ TRẢ LỜI DUY NHẤT: "PLAY_SPOTIFY_NOW".
+            1. PHÂN TÍCH kết quả ngay.
+               - Nếu điểm tiêu cực cao (bị bắt nạt/lo âu) -> AN ỦI NGAY, hỏi: "Cậu có muốn nghe nhạc Lofi không?".
+               - Nếu ổn -> Chúc mừng và hỏi thăm chuyện khác.
+            2. Nếu user đồng ý nghe nhạc trong tương lai: CHỈ TRẢ LỜI DUY NHẤT: "PLAY_SPOTIFY_NOW".
             3. Ngắn gọn, ấm áp.`;
 
             messages.push({ role: "system", content: systemPrompt });
             messages.push({ role: "assistant", content: `Chào ${userProfile.name}...` });
 
-            document.getElementById('typingIndicator').style.display = 'flex';
             try {
                 const response = await callGroqAPI(messages);
                 document.getElementById('typingIndicator').style.display = 'none';
@@ -314,11 +302,11 @@
                 messages.push({ role: "assistant", content: response });
             } catch (e) {
                 document.getElementById('typingIndicator').style.display = 'none';
-                addMessage(`⚠️ Lỗi: ${e.message}`, 'ai');
+                addMessage(`⚠️ Lỗi Groq: ${e.message}`, 'ai');
             }
         }
 
-        // 3. CHAT LOGIC
+        // 4. CHAT BÌNH THƯỜNG
         async function handleChat() {
             const input = document.getElementById('userInput');
             const text = input.value.trim();
@@ -338,7 +326,7 @@
                 saveHistory(text, aiText);
             } catch (error) {
                 document.getElementById('typingIndicator').style.display = 'none';
-                addMessage(`⚠️ Lỗi: ${error.message}`, 'ai');
+                addMessage(`⚠️ Lỗi kết nối: ${error.message}`, 'ai');
             }
         }
 
@@ -352,15 +340,12 @@
             return (await response.json()).choices[0].message.content;
         }
 
-        // XỬ LÝ NHẠC THEO CẢM XÚC
         function processAIResponse(text) {
             if (text.includes("PLAY_SPOTIFY_NOW")) {
                 addMessage("Oki! Nhạc lên ngay đây. 🎶", 'ai');
-                // Logic chọn nhạc
                 const checkText = text.toLowerCase() + " " + (messages[messages.length-2]?.content.toLowerCase() || "");
-                let link = LINK_BUON;
-                if (checkText.includes("vui") || checkText.includes("tuyệt") || checkText.includes("hạnh phúc")) link = LINK_VUI;
-                
+                let link = LINK_LOFI;
+                if (checkText.includes("vui") || checkText.includes("tuyệt")) link = LINK_VUI;
                 addMessage(`<iframe style="border-radius:12px; margin-top:10px;" src="${link}" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`, 'ai');
             } else {
                 addMessage(text.replace(/\*\*/g, ''), 'ai');
@@ -371,7 +356,7 @@
             else if(t.includes('căng')||t.includes('lo')) changeTheme('stress');
         }
 
-        // EXTRAS (Reset, Audio, Map)
+        // EXTRAS
         function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
         function playWhiteNoise() {
             initAudio();
